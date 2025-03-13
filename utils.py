@@ -66,6 +66,7 @@ def update_html_summary(results_summary, output_dir='model_results'):
     
     # 提取結果摘要信息
     rmse = results_summary.get('rmse', 0)
+    error_rate = rmse * 100  # 計算相對誤差率（百分比）
     training_time = results_summary.get('training_time', 0)
     model_name = results_summary.get('model_name', 'Unknown Model')
     features_count = results_summary.get('features_count', 0)
@@ -110,6 +111,7 @@ def update_html_summary(results_summary, output_dir='model_results'):
                     <tr>
                         <td>{model_name}</td>
                         <td>{rmse:.6f}</td>
+                        <td class="error-rate">{error_rate:.2f}%</td>
                         <td>~{training_time:.1f}分鐘</td>
                         <td>{features_count}</td>
                         {'<td>' + best_models_str + '</td>' if model_type == 'stacking' else ''}
@@ -140,29 +142,67 @@ def create_new_html_summary(rmse, training_time, model_name, features_count, bes
     
     summary_path = f'{output_dir}/@summary.html'
     
+    # 計算相對誤差率（百分比）
+    error_rate = rmse * 100
+    
     # 格式化最佳模型信息
     best_models_str = ", ".join([f"{segment}: {model}" for segment, model in best_models.items()])
     timestamp = pd.Timestamp.now().strftime('%Y%m%d_%H%M%S')
     
     # 創建HTML內容
+    css_style = """
+        body { 
+            font-family: "Microsoft JhengHei", Arial, sans-serif; 
+            margin: 20px; 
+        }
+        h1, h2 { 
+            color: #2c3e50; 
+        }
+        table { 
+            border-collapse: collapse; 
+            width: 100%; 
+            margin: 20px 0; 
+        }
+        th, td { 
+            border: 1px solid #ddd; 
+            padding: 8px; 
+            text-align: left; 
+        }
+        th { 
+            background-color: #f2f2f2; 
+        }
+        tr:nth-child(even) { 
+            background-color: #f9f9f9; 
+        }
+        tr:hover { 
+            background-color: #f5f5f5; 
+        }
+        .best { 
+            background-color: #e8f8f5; 
+            font-weight: bold; 
+        }
+        .model-section { 
+            margin-bottom: 30px; 
+        }
+        .model-type { 
+            color: #2980b9; 
+        }
+        .error-rate { 
+            color: #e74c3c; 
+        }
+        .timestamp { 
+            color: #7f8c8d; 
+            font-size: 0.9em; 
+        }
+    """
+    
     html_content = f"""<!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
     <title>房價預測模型性能比較</title>
     <style>
-        body { font-family: "Microsoft JhengHei", Arial, sans-serif; margin: 20px; }
-        h1, h2 { color: #2c3e50; }
-        table { border-collapse: collapse; width: 100%; margin: 20px 0; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; }
-        tr:nth-child(even) { background-color: #f9f9f9; }
-        tr:hover { background-color: #f5f5f5; }
-        .best { background-color: #e8f8f5; font-weight: bold; }
-        .model-section { margin-bottom: 30px; }
-        .model-type { color: #2980b9; }
-        .error-rate { color: #e74c3c; }
-        .timestamp { color: #7f8c8d; font-size: 0.9em; }
+    {css_style}
     </style>
 </head>
 <body>
@@ -179,6 +219,14 @@ def create_new_html_summary(rmse, training_time, model_name, features_count, bes
                 <th>特徵數量</th>
                 <th>時間戳</th>
             </tr>
+            <tr>
+                <td>{model_name}</td>
+                <td>{rmse:.6f}</td>
+                <td class="error-rate">{error_rate:.2f}%</td>
+                <td>~{training_time:.1f}分鐘</td>
+                <td>{features_count}</td>
+                <td>{timestamp}</td>
+            </tr>
         </table>
     </div>
     
@@ -192,6 +240,14 @@ def create_new_html_summary(rmse, training_time, model_name, features_count, bes
                 <th>訓練時間</th>
                 <th>特徵數量</th>
                 <th>時間戳</th>
+            </tr>
+            <tr>
+                <td>{model_name}</td>
+                <td>{rmse:.6f}</td>
+                <td class="error-rate">{error_rate:.2f}%</td>
+                <td>~{training_time:.1f}分鐘</td>
+                <td>{features_count}</td>
+                <td>{timestamp}</td>
             </tr>
         </table>
     </div>
@@ -207,6 +263,15 @@ def create_new_html_summary(rmse, training_time, model_name, features_count, bes
                 <th>特徵數量</th>
                 <th>最佳分段模型</th>
                 <th>時間戳</th>
+            </tr>
+            <tr>
+                <td>{model_name}</td>
+                <td>{rmse:.6f}</td>
+                <td class="error-rate">{error_rate:.2f}%</td>
+                <td>~{training_time:.1f}分鐘</td>
+                <td>{features_count}</td>
+                <td>{best_models_str}</td>
+                <td>{timestamp}</td>
             </tr>
         </table>
     </div>

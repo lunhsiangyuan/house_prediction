@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>房價預測模型性能比較</title>
+    <style>
+    
+        body { 
+            font-family: "Microsoft JhengHei", Arial, sans-serif; 
+            margin: 20px; 
+        }
+        h1, h2 { 
+            color: #2c3e50; 
+        }
+        table { 
+            border-collapse: collapse; 
+            width: 100%; 
+            margin: 20px 0; 
+        }
+        th, td { 
+            border: 1px solid #ddd; 
+            padding: 8px; 
+            text-align: left; 
+        }
+        th { 
+            background-color: #f2f2f2; 
+        }
+        tr:nth-child(even) { 
+            background-color: #f9f9f9; 
+        }
+        tr:hover { 
+            background-color: #f5f5f5; 
+        }
+        .best { 
+            background-color: #e8f8f5; 
+            font-weight: bold; 
+        }
+        .model-section { 
+            margin-bottom: 30px; 
+        }
+        .model-type { 
+            color: #2980b9; 
+        }
+        .error-rate { 
+            color: #e74c3c; 
+        }
+        .timestamp { 
+            color: #7f8c8d; 
+            font-size: 0.9em; 
+        }
+    
+    </style>
+</head>
+<body>
+    <h1>房價預測模型性能比較</h1>
+    
+    <div class="model-section">
+        <h2 class="model-type">基礎模型</h2>
+        <table>
+            <tr>
+                <th>模型</th>
+                <th>RMSE (對數空間)</th>
+                <th>相對誤差率</th>
+                <th>訓練時間</th>
+                <th>特徵數量</th>
+                <th>時間戳</th>
+            </tr>
+            <tr>
+                <td>Super Advanced Multi-layer Stacking Ensemble</td>
+                <td>0.132307</td>
+                <td class="error-rate">13.23%</td>
+                <td>~1.3分鐘</td>
+                <td>224</td>
+                <td>20250313_100541</td>
+            </tr>
+        </table>
+    </div>
+    
+    <div class="model-section">
+        <h2 class="model-type">優化模型</h2>
+        <table>
+            <tr>
+                <th>模型</th>
+                <th>RMSE (對數空間)</th>
+                <th>相對誤差率</th>
+                <th>訓練時間</th>
+                <th>特徵數量</th>
+                <th>時間戳</th>
+            </tr>
+            <tr>
+                <td>Super Advanced Multi-layer Stacking Ensemble</td>
+                <td>0.132307</td>
+                <td class="error-rate">13.23%</td>
+                <td>~1.3分鐘</td>
+                <td>224</td>
+                <td>20250313_100541</td>
+            </tr>
+        </table>
+    </div>
+    
+    <div class="model-section">
+        <h2 class="model-type">堆疊模型</h2>
+        <table>
+            <tr>
+                <th>模型</th>
+                <th>RMSE (對數空間)</th>
+                <th>相對誤差率</th>
+                <th>訓練時間</th>
+                <th>特徵數量</th>
+                <th>最佳分段模型</th>
+                <th>時間戳</th>
+            </tr>
+            <tr>
+                <td>Super Advanced Multi-layer Stacking Ensemble</td>
+                <td>0.132307</td>
+                <td class="error-rate">13.23%</td>
+                <td>~1.3分鐘</td>
+                <td>224</td>
+                <td>段 1: xgb, 段 2: rf, 段 3: lasso</td>
+                <td>20250313_100541</td>
+            </tr>
+        </table>
+    </div>
+    
+    <h2>模型性能比較圖</h2>
+    <img src="first_layer_model_performance.png" alt="第一層模型性能比較" style="max-width: 100%;">
+    <img src="all_model_performance.png" alt="所有模型性能比較" style="max-width: 100%;">
+    
+    <h2>預測結果分布</h2>
+    <img src="prediction_distribution.png" alt="預測結果分布" style="max-width: 100%;">
+    
+    <h2>分段模型性能</h2>
+    <img src="segmented_model_performance.png" alt="分段模型性能" style="max-width: 100%;">
+    
+    <p class="timestamp">最後更新時間: 2025-03-13 10:05:41</p>
+</body>
+</html>

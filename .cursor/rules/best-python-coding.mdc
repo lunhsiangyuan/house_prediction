@@ -1,0 +1,40 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+# Your rule content
+
+Description:
+Enforce best-in-class Python coding style for all *.py files.
+
+Globs:
+**/*.py
+
+Python Coding Style Guidelines
+Follow PEP 8:
+
+Indentation: Use 4 spaces per level. Never mix tabs and spaces.
+Line Length: Limit lines to a maximum of 79 characters for code and 72 for comments/docstrings.
+Blank Lines: Use two blank lines between top-level functions/classes and one blank line between methods inside a class.
+Naming Conventions:
+
+Variables & Functions: Use snake_case.
+Classes: Use CapWords (also known as CamelCase).
+Constants: Use UPPERCASE_WITH_UNDERSCORES.
+Docstrings & Comments:
+
+Write clear, concise docstrings for all public modules, classes, methods, and functions using triple double quotes ("""), as per PEP 257.
+Use inline comments sparingly and ensure they explain the “why” rather than the “what.”
+Imports:
+
+Place all import statements at the top of the file.
+Group imports in this order: Standard library, third-party packages, then local application imports. Separate these groups with a blank line.
+Additional Principles:
+
+Embrace the Zen of Python: “Beautiful is better than ugly. Explicit is better than implicit. Simple is better than complex…”
+Write code that is readable, maintainable, and consistent across the project.
+
+
+
