@@ -6,4 +6,6 @@ scikit-learn>=1.0.0
 xgboost>=1.5.0
 lightgbm>=3.3.0
 scikit-optimize>=0.9.0
-category_encoders>=2.4.0 
+category_encoders>=2.4.0
+tensorflow>=2.8.0
+keras>=2.8.0 

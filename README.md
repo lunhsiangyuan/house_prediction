@@ -7,6 +7,7 @@
 競賽使用**對數轉換後的均方根誤差(RMSLE)**作為評估標準：
 - 對預測結果和實際銷售價格取對數再計算RMSE
 - 這種方法讓低價房屋和高價房屋的預測誤差權重相同
+- 相對誤差率 = RMSE * 100%（顯示為百分比）
 
 ## 專案結構
 ```
@@ -14,97 +15,110 @@ house_prices_data/
 ├── dataset/                      # 原始數據集
 ├── preprocessing_results/        # 數據預處理結果
 ├── feature_engineering_results/  # 特徵工程結果
-│   └── advanced/                 # 高級特徵工程結果
-├── model_results/                # 模型訓練結果和摘要
-├── data_preprocessing.py         # 數據預處理腳本
-├── feature_engineering.py        # 基本特徵工程腳本
-├── advanced_feature_engineering.py # 高級特徵工程腳本
-├── train_simple_xgboost.py       # 簡單XGBoost模型訓練腳本
-├── train_fixed_xgboost.py        # 優化XGBoost模型訓練腳本
-├── bayesian_xgboost_model.py     # 貝葉斯優化XGBoost模型腳本
-├── stacking_ensemble_model.py    # 堆疊集成模型腳本
-├── run_optimization.py           # 優化執行腳本
-├── optimization_summary.md       # 優化總結
-├── TODO.md                       # 專案待辦事項清單
-└── README.md                     # 專案說明文件
+├── model_results/               # 模型訓練結果和摘要
+│   └── @summary.html           # 模型性能比較摘要
+├── data_handling.py            # 數據加載和處理
+├── model_definition.py         # 模型定義和初始化
+├── ensemble_training.py        # 集成模型訓練邏輯
+├── visualization.py            # 視覺化函數
+├── utils.py                    # 工具函數
+├── main_ensemble.py            # 主程序
+├── setup_environment.py        # 環境設置
+└── README.md                   # 專案說明文件
 ```
 
-## 主要成果
-我們實施了三種主要的優化方案，以提高房價預測模型的性能：
+## 主要功能模塊
 
-1. **高級特徵工程**：
-   - 多項式特徵：為重要特徵創建二次多項式特徵，捕捉非線性關係
-   - 主成分分析 (PCA)：創建15個主成分特徵，累積解釋方差達73.58%
-   - 聚類特徵：使用K-means聚類創建聚類標籤和距離特徵
+### 1. 數據處理 (`data_handling.py`)
+- 數據加載和預處理
+- 特徵轉換和標準化
+- 訓練集和測試集處理
 
-2. **貝葉斯優化XGBoost**：
-   - 使用貝葉斯優化方法調整XGBoost超參數
-   - 相比傳統的網格搜索和隨機搜索，更有效地探索超參數空間
-   - 交叉驗證RMSE: 0.125640 (對數空間)
+### 2. 模型定義 (`model_definition.py`)
+- 基礎模型初始化
+- 模型參數設置
+- 模型工廠函數
 
-3. **堆疊集成模型**：
-   - 結合7個基礎模型：Ridge、Lasso、ElasticNet、隨機森林、梯度提升樹、XGBoost、LightGBM
-   - 使用Ridge回歸作為元模型，學習如何最佳組合基礎模型的預測
-   - 交叉驗證RMSE: 0.124580 (對數空間)
+### 3. 集成訓練 (`ensemble_training.py`)
+- 多層堆疊集成
+- 分段模型訓練
+- 交叉驗證評估
+
+### 4. 視覺化 (`visualization.py`)
+- 模型性能比較圖
+- 預測分布圖
+- 分段模型性能圖
+
+### 5. 工具函數 (`utils.py`)
+- 結果保存和加載
+- HTML摘要生成
+- 輔助函數
 
 ## 模型性能比較
 
-| 模型 | 交叉驗證 RMSE (對數空間) | 訓練時間 | 參數優化 |
-|------|------------------------|---------|---------|
-| XGBoost (優化) | 0.125871 | ~3.5分鐘 | 網格搜索 + 隨機搜索 |
-| LightGBM | 0.134672 | ~0.1分鐘 | 預設參數微調 |
-| 隨機森林 | 0.142635 | ~1.2分鐘 | 基本參數設定 |
-| SVR | 0.147298 | ~5分鐘 | 僅使用最重要特徵 |
-| 集成模型 (加權平均) | 0.135640 | ~0.2分鐘 | XGBoost(0.40), LightGBM(0.40), RF(0.20) |
-| 貝葉斯優化XGBoost | 0.125640 | ~0.1分鐘 | 貝葉斯優化 |
-| 堆疊集成 | 0.124580 | ~0.2分鐘 | 堆疊集成 (7個基礎模型) |
+| 模型類型 | 模型名稱 | RMSE (對數空間) | 相對誤差率 | 訓練時間 |
+|---------|---------|----------------|------------|---------|
+| 基礎模型 | Ridge   | 0.008856 | 0.89% | ~0.1分鐘 |
+| 基礎模型 | Lasso   | 0.007671 | 0.77% | ~0.1分鐘 |
+| 基礎模型 | ElasticNet | 0.007785 | 0.78% | ~0.1分鐘 |
+| 優化模型 | Random Forest | 0.008148 | 0.81% | ~0.5分鐘 |
+| 優化模型 | XGBoost | 0.017980 | 1.80% | ~0.3分鐘 |
+| 優化模型 | LightGBM | 0.007939 | 0.79% | ~0.2分鐘 |
+| 堆疊模型 | Super Stacking | 0.132307 | 13.23% | ~1.3分鐘 |
 
 ## 使用方法
 
 ### 環境設置
 ```bash
+python setup_environment.py
 pip install -r requirements.txt
 ```
 
-### 數據預處理和特徵工程
+### 運行模型
 ```bash
-python data_preprocessing.py
-python feature_engineering.py
-python advanced_feature_engineering.py
-```
-
-### 模型訓練
-```bash
-# 訓練基本模型
-python train_simple_xgboost.py
-python train_fixed_xgboost.py
-
-# 訓練優化模型
-python bayesian_xgboost_model.py
-python stacking_ensemble_model.py
-
-# 或使用優化執行腳本一次性執行所有優化
-python run_optimization.py
+python main_ensemble.py
 ```
 
 ### 查看結果
 訓練完成後，可以在`model_results/@summary.html`中查看詳細的模型比較和分析結果。
 
-## 結論與建議
+## 可視化說明
 
-1. **最佳模型**：堆疊集成模型表現最佳，RMSE為0.124580，略優於貝葉斯優化XGBoost和原始優化XGBoost。
+1. **模型性能比較圖**
+   - `first_layer_model_performance.png`: 第一層基礎模型性能比較
+   - `all_model_performance.png`: 所有模型性能總覽
 
-2. **效率考量**：
-   - LightGBM在速度和性能之間取得了良好的平衡，訓練時間短且性能不錯
-   - 貝葉斯優化XGBoost在保持高性能的同時，大幅減少了訓練時間
+2. **預測分布圖**
+   - `prediction_distribution.png`: 預測值分布情況
+   - 包含異常值檢測和分布偏態分析
 
-3. **後續改進方向**：
-   - 實施SHAP值分析和偏依存圖分析，進一步理解模型預測機制
-   - 進行模型殘差分析，找出模型預測效果較差的情況
-   - 嘗試神經網路模型，特別是針對特徵間的複雜交互
-   - 開發模型API和網頁界面，實現實時預測服務
+3. **分段模型性能圖**
+   - `segmented_model_performance.png`: 不同價格區間的模型表現
+   - 顯示每個區間的最佳模型和RMSE
 
-## 參考資源
-- Kaggle競賽頁面：[House Prices - Advanced Regression Techniques](https://www.kaggle.com/c/house-prices-advanced-regression-techniques)
-- 相關文獻中的房價預測方法論
-- 過去競賽獲勝者的解決方案
+## 後續優化方向
+
+1. **模型改進**
+   - 實施神經網絡模型
+   - 優化特徵選擇策略
+   - 改進分段模型的區間劃分
+
+2. **工程化改進**
+   - 添加模型部署支持
+   - 實現自動化測試
+   - 優化代碼結構
+
+3. **可視化增強**
+   - 添加交互式圖表
+   - 實現實時監控
+   - 優化展示界面
+
+## 貢獻指南
+
+1. Fork 本專案
+2. 創建新的功能分支
+3. 提交更改
+4. 發起 Pull Request
+
+## 授權
+MIT License
