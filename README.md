@@ -92,6 +92,16 @@ python main_ensemble.py
 ### 查看結果
 訓練完成後，可以在`model_results/@summary.html`中查看詳細的模型比較和分析結果。
 
+### 啟動預測結果展示 Web App
+本專案提供可部署至 Vercel 的簡易網頁介面。
+在本地啟動後端 API：
+```bash
+uvicorn api.prediction_api:app --reload
+```
+然後在瀏覽器中開啟 `index.html` 查看預測結果。
+
+若要部署至 [Vercel](https://vercel.com/)，安裝 Vercel CLI 並執行 `vercel` 即可。儲存庫已包含 `vercel.json` 設定。
+
 ## 可視化說明
 
 1. **模型性能比較圖**

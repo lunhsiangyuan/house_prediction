@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>House Price Predictions</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <h1>House Price Prediction Results</h1>
+  <div>
+    <label for="fileSelect">Select a submission file:</label>
+    <select id="fileSelect"></select>
+  </div>
+  <div id="preview"></div>
+  <canvas id="chart"></canvas>
+  <script>
+    async function loadFiles() {
+      const res = await fetch('/api/files');
+      const data = await res.json();
+      const select = document.getElementById('fileSelect');
+      select.innerHTML = '';
+      data.files.forEach(f => {
+        const opt = document.createElement('option');
+        opt.value = f;
+        opt.textContent = f;
+        select.appendChild(opt);
+      });
+      if (data.files.length > 0) {
+        loadData(select.value);
+        select.onchange = () => loadData(select.value);
+      } else {
+        document.getElementById('preview').textContent = 'No submission files found.';
+      }
+    }
+
+    let chart;
+    async function loadData(file) {
+      const res = await fetch(`/api/predictions?file=${file}`);
+      const data = await res.json();
+      const previewDiv = document.getElementById('preview');
+      previewDiv.innerHTML = '<h2>Preview</h2>';
+      const table = document.createElement('table');
+      if (data.preview.length > 0) {
+        const headers = Object.keys(data.preview[0]);
+        const thead = document.createElement('thead');
+        const headerRow = document.createElement('tr');
+        headers.forEach(h => {
+          const th = document.createElement('th');
+          th.textContent = h;
+          headerRow.appendChild(th);
+        });
+        thead.appendChild(headerRow);
+        table.appendChild(thead);
+        const tbody = document.createElement('tbody');
+        data.preview.forEach(row => {
+          const tr = document.createElement('tr');
+          headers.forEach(h => {
+            const td = document.createElement('td');
+            td.textContent = row[h];
+            tr.appendChild(td);
+          });
+          tbody.appendChild(tr);
+        });
+        table.appendChild(tbody);
+      }
+      previewDiv.appendChild(table);
+
+      if (data.histogram && data.histogram.bins) {
+        const ctx = document.getElementById('chart').getContext('2d');
+        if (chart) chart.destroy();
+        chart = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: data.histogram.bins,
+            datasets: [{ label: 'SalePrice Distribution', data: data.histogram.counts }]
+          }
+        });
+      }
+    }
+
+    loadFiles();
+  </script>
+</body>
+</html>
