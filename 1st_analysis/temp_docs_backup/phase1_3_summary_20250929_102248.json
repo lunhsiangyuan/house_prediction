@@ -1,0 +1,19 @@
+{
+    "timestamp": "20250929_102248",
+    "report_path": "/Users/lunhsiangyuan/Desktop/ai side projects/kaggle/reports/report_20250929_102309.html",
+    "log_file": "/Users/lunhsiangyuan/Desktop/ai side projects/kaggle/logs/analysis_20250929_102248.log",
+    "stat_model_metrics": {
+        "r2": 0.9451109347140282,
+        "adj_r2": 0.9029867683317707,
+        "rmse": 4.743218078478556,
+        "mae": 2.3337098454487015
+    },
+    "linear_cv": {
+        "mean_r2": 0.008525471619544246,
+        "std_r2": 1.2694798284576942
+    },
+    "rf_cv": {
+        "mean_r2": -0.25991512541931977,
+        "std_r2": 2.0625506068018877
+    }
+}

@@ -1,0 +1,14 @@
+{
+    "timestamp": "20250929_105528",
+    "report_path": "/Users/lunhsiangyuan/Desktop/ai side projects/kaggle/reports/report_tables_figures_20250929_105529.html",
+    "table1_path": "/Users/lunhsiangyuan/Desktop/ai side projects/kaggle/project/temp/docs/table1_demographics_20250929_105528.csv",
+    "table2_path": "/Users/lunhsiangyuan/Desktop/ai side projects/kaggle/project/temp/docs/table2_lasso_20250929_105528.csv",
+    "figure_paths": {
+        "flow": "/Users/lunhsiangyuan/Desktop/ai side projects/kaggle/project/temp/reports/figure1_flow_20250929_105528.png",
+        "distribution": "/Users/lunhsiangyuan/Desktop/ai side projects/kaggle/project/temp/reports/figure2_distributions_20250929_105528.png",
+        "correlation": "/Users/lunhsiangyuan/Desktop/ai side projects/kaggle/project/temp/reports/figure3_correlation_20250929_105528.png"
+    },
+    "lasso_alpha": 1.1693939966700317,
+    "lasso_r2": 0.6571714244576268,
+    "log_file": "/Users/lunhsiangyuan/Desktop/ai side projects/kaggle/logs/table_figures_20250929_105528.log"
+}

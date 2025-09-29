@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kaggle 學生數據清理分析報告</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            margin: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.2em;
+        }
+        h2 {
+            color: #34495e;
+            margin-top: 30px;
+            border-left: 4px solid #667eea;
+            padding-left: 15px;
+        }
+        h3 {
+            color: #2c3e50;
+            margin-top: 25px;
+        }
+        .status-success {
+            background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+            border-radius: 10px;
+            color: #155724;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 5px solid #28a745;
+        }
+        .status-info {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border-radius: 10px;
+            color: #004085;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 5px solid #17a2b8;
+        }
+        .status-warning {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
+            border-radius: 10px;
+            color: #856404;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 5px solid #ffc107;
+        }
+        .status-error {
+            background: linear-gradient(135deg, #fd79a8 0%, #fdcb6e 100%);
+            border-radius: 10px;
+            color: #721c24;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 5px solid #dc3545;
+        }
+        .metric-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+            display: inline-block;
+            width: 200px;
+            vertical-align: top;
+        }
+        .metric-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+
+        .metric-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        tr:hover {
+            background-color: #e3f2fd;
+        }
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+            overflow-x: auto;
+        }
+        .correlation-matrix {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .correlation-matrix table {
+            margin: 0 auto;
+            font-size: 0.9em;
+        }
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        .timeline {
+            position: relative;
+            margin: 30px 0;
+        }
+        .timeline-item {
+            position: relative;
+            margin: 20px 0;
+            padding-left: 40px;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            border: 4px solid white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        }
+        .timeline-content {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 Kaggle 學生數據清理分析報告</h1>
+        
+        <div class="status-info">
+            <h3>🎯 專案目標</h3>
+            <p>根據 README.md 檔案指引，對 Kaggle 學生數據進行完整的數據清理與探索性分析，為後續機器學習建模做好準備。</p>
+        </div>
+
+        <h2>📋 數據集基本信息</h2>
+        <div class="summary-stats">
+            <div class="metric-card">
+                <div class="metric-value">77</div>
+                <div class="metric-label">學生總數</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">11</div>
+                <div class="metric-label">數據欄位</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">6.75 KB</div>
+                <div class="metric-label">數據大小</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">2</div>
+                <div class="metric-label">原始缺失值</div>
+            </div>
+        </div>
+
+        <h2>🔍 原始數據欄位結構</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>欄位名稱</th>
+                    <th>數據類型</th>
+                    <th>缺失值</th>
+                    <th>描述</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>fNAME</td><td>String</td><td>0</td><td>名字</td></tr>
+                <tr><td>lNAME</td><td>String</td><td>0</td><td>姓氏</td></tr>
+                <tr><td>Age</td><td>Integer</td><td>0</td><td>年齡</td></tr>
+                <tr><td>gender</td><td>String</td><td>0</td><td>性別 (多種格式)</td></tr>
+                <tr><td>country</td><td>String</td><td>0</td><td>國家 (多種表示)</td></tr>
+                <tr><td>residence</td><td>String</td><td>0</td><td>居住地 (多種格式)</td></tr>
+                <tr><td>entryEXAM</td><td>Integer</td><td>0</td><td>入學考試分數</td></tr>
+                <tr><td>prevEducation</td><td>String</td><td>0</td><td>教育程度 (不一致)</td></tr>
+                <tr><td>studyHOURS</td><td>Integer</td><td>0</td><td>學習時數</td></tr>
+                <tr><td>Python</td><td>Float</td><td>2</td><td>Python 成績 (有缺失)</td></tr>
+                <tr><td>DB</td><td>Integer</td><td>0</td><td>數據庫成績</td></tr>
+            </tbody>
+        </table>
+
+        <h2>⚠️ 識別的數據品質問題</h2>
+        <div class="timeline">
+            <div class="timeline-item">
+                <div class="timeline-content">
+                    <h3>性別欄位不一致</h3>
+                    <p>發現 6 種不同的性別表示方式: ['F', 'Female', 'M', 'Male', 'female', 'male']</p>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-content">
+                    <h3>國家名稱變異</h3>
+                    <p>發現 16 種國家表示方式，包含拼寫錯誤和變異: 'Norway'/'norway'/'Norge', 'Rsa'/'South Africa'</p>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-content">
+                    <h3>教育背景不一致</h3>
+                    <p>教育程度欄位有多種拼寫錯誤和不一致表示: 'Barrrchelors', 'Diplomaaa', 'DIPLOMA'/'diploma'</p>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-content">
+                    <h3>居住地格式混亂</h3>
+                    <p>居住地有 5 種不同的格式: 'BI Residence'/'BI-Residence'/'BIResidence'/'BI_Residence'</p>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-content">
+                    <h3>缺失值問題</h3>
+                    <p>Python 成績欄位有 2 個缺失值，需要適當的策略處理</p>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-content">
+                    <h3>文字編碼問題</h3>
+                    <p>數據檔案包含非 UTF-8 字符，需要使用 latin1 編碼讀取</p>
+                </div>
+            </div>
+        </div>
+
+        <h2>🔧 數據清理流程與成果</h2>
+
+        <h3>✅ 性別欄位標準化</h3>
+        <div class="status-success">
+            <strong>清理前:</strong> 6 種變異 → <strong>清理後:</strong> 2 種標準 (Male/Female)
+            <br>
+            <strong>分佈:</strong> Female: 43 人 (55.8%), Male: 34 人 (44.2%)
+        </div>
+
+        <h3>✅ 國家名稱統一</h3>
+        <div class="status-success">
+            <strong>清理前:</strong> 16 種變異 → <strong>清理後:</strong> 13 個標準國家
+            <br>
+            <strong>主要國家分佈:</strong> Norway (49), Uganda (4), Kenya (3)
+        </div>
+
+        <h3>✅ 教育背景標準化</h3>
+        <div class="status-success">
+            <strong>清理前:</strong> 10 種變異 (含拼寫錯誤) → <strong>清理後:</strong> 5 種標準格式
+            <br>
+            <strong>分佈:</strong> Bachelors (25), High School (19), Masters (16), Diploma (12), Doctorate (5)
+        </div>
+
+        <h3>✅ 居住地格式統一</h3>
+        <div class="status-success">
+            <strong>清理前:</strong> 6 種變異 → <strong>清理後:</strong> 3 種標準格式
+            <br>
+            <strong>分佈:</strong> Private (33), BI Residence (32), Sognsvann (12)
+        </div>
+
+        <h3>✅ 缺失值處理</h3>
+        <div class="status-success">
+            <strong>策略:</strong> 使用 Python 成績平均值 (75.85) 填充缺失值
+            <br>
+            <strong>結果:</strong> 缺失值從 2 個減少至 0 個
+        </div>
+
+        <h2>📈 探索性數據分析 (EDA)</h2>
+
+        <h3>數值欄位相關性分析</h3>
+        <div class="correlation-matrix">
+            <table>
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>年齡</th>
+                        <th>入學分數</th>
+                        <th>學習時數</th>
+                        <th>Python成績</th>
+                        <th>數據庫成績</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>年齡</td><td>1.000</td><td>0.131</td><td>0.215</td><td>-0.014</td><td>0.099</td></tr>
+                    <tr><td>入學分數</td><td>0.131</td><td>1.000</td><td>0.808</td><td>0.759</td><td>0.608</td></tr>
+                    <tr><td>學習時數</td><td>0.215</td><td>0.808</td><td>1.000</td><td>0.784</td><td>0.466</td></tr>
+                    <tr><td>Python成績</td><td>-0.014</td><td>0.759</td><td>0.784</td><td>1.000</td><td>0.443</td></tr>
+                    <tr><td>數據庫成績</td><td>0.099</td><td>0.608</td><td>0.466</td><td>0.443</td><td>1.000</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="status-info">
+            <h3>🔍 重要發現</h3>
+            <ul>
+                <li><strong>學習時數與成績高度相關:</strong> 學習時數與 Python 成績相關性達 0.784</li>
+                <li><strong>入學分數預測能力強:</strong> 入學分數與後續成績有 0.759 相關性</li>
+                <li><strong>Python 與 DB 成績相關性:</strong> 兩門學科成績相關性為 0.443</li>
+            </ul>
+        </div>
+
+        <h3>分組分析結果</h3>
+
+        <h4>按性別分組的成績統計</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th>性別</th>
+                    <th>Python平均分</th>
+                    <th>Python標準差</th>
+                    <th>DB平均分</th>
+                    <th>DB標準差</th>
+                    <th>人數</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Female</td>
+                    <td>76.00</td>
+                    <td>14.47</td>
+                    <td>65.28</td>
+                    <td>17.05</td>
+                    <td>43</td>
+                </tr>
+                <tr>
+                    <td>Male</td>
+                    <td>75.67</td>
+                    <td>16.31</td>
+                    <td>74.76</td>
+                    <td>15.70</td>
+                    <td>34</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h4>按教育程度分組的成績統計</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th>教育程度</th>
+                    <th>Python平均分</th>
+                    <th>人數</th>
+                    <th>DB平均分</th>
+                    <th>人數</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>Masters</td><td>81.19</td><td>16</td><td>77.06</td><td>16</td></tr>
+                <tr><td>Bachelors</td><td>80.00</td><td>25</td><td>70.88</td><td>25</td></tr>
+                <tr><td>Diploma</td><td>70.08</td><td>12</td><td>69.00</td><td>12</td></tr>
+                <tr><td>Doctorate</td><td>75.60</td><td>5</td><td>69.80</td><td>5</td></tr>
+                <tr><td>High School</td><td>69.62</td><td>19</td><td>61.42</td><td>19</td></tr>
+            </tbody>
+        </table>
+
+        <h2>📋 數據清理前後對比</h2>
+        <div class="summary-stats">
+            <div class="metric-card">
+                <div class="metric-value">77</div>
+                <div class="metric-label">清理前記錄數</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">77</div>
+                <div class="metric-label">清理後記錄數</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">2</div>
+                <div class="metric-label">清理前缺失值</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">0</div>
+                <div class="metric-label">清理後缺失值</div>
+            </div>
+        </div>
+
+        <div class="status-success">
+            <h3>🎉 數據清理成果</h3>
+            <ul>
+                <li>✅ <strong>數據品質大幅提升:</strong> 所有分類變數現已標準化</li>
+                <li>✅ <strong>缺失值問題解決:</strong> 從 2 個減少至 0 個</li>
+                <li>✅ <strong>數據一致性改善:</strong> 性別、國家、教育背景、居住地均標準化</li>
+                <li>✅ <strong>機器學習就緒:</strong> 數據已準備好用於建模分析</li>
+            </ul>
+        </div>
+
+        <h2>🚀 建議的後續分析方向</h2>
+
+        <h3>1. 預測建模</h3>
+        <div class="status-info">
+            <ul>
+                <li><strong>目標變數:</strong> Python 成績或 DB 成績預測</li>
+                <li><strong>特徵工程:</strong> 年齡分組、學習時數分類、教育背景編碼</li>
+                <li><strong>推薦算法:</strong> 線性回歸、決策樹、隨機森林</li>
+            </ul>
+        </div>
+
+        <h3>2. 學術表現分析</h3>
+        <div class="status-info">
+            <ul>
+                <li>分析入學分數與最終成績的預測關係</li>
+                <li>研究學習時數對成績的邊際效應</li>
+                <li>探索教育背景對學術成就的影響</li>
+            </ul>
+        </div>
+
+        <h3>3. 人口統計洞察</h3>
+        <div class="status-info">
+            <ul>
+                <li>國際學生的地理分佈分析</li>
+                <li>男女學生的學術表現比較</li>
+                <li>不同住宿類型的學習環境影響</li>
+            </ul>
+        </div>
+
+        <h2>📁 輸出文件</h2>
+        <div class="status-success">
+            <h3>生成的文件</h3>
+            <ul>
+                <li><strong>bi_cleaned.csv:</strong> 清理後的完整數據集 (11 欄位)</li>
+                <li><strong>data_cleaning_analysis.py:</strong> 完整的數據清理程式碼</li>
+                <li><strong>data_cleaning_report.html:</strong> 本分析報告</li>
+            </ul>
+        </div>
+
+        <div class="status-warning">
+            <h3>⚠️ 注意事項</h3>
+            <p>這個數據集是教學用合成數據，規模適中，適合學習和實驗。清理後的數據已進行一致性檢查，建議在實際建模前再次驗證數據品質。</p>
+        </div>
+
+        <footer style="text-align: center; margin-top: 50px; color: #666; border-top: 1px solid #eee; padding-top: 20px;">
+            <p>Generated by Kaggle MCP Data Cleaning Analysis | 2024年12月</p>
+        </footer>
+    </div>
+</body>
+</html>

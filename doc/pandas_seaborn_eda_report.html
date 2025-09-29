@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kaggle 學生數據 - Pandas + Seaborn EDA 分析報告</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 4px solid #667eea;
+            padding-bottom: 15px;
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #34495e;
+            margin-top: 40px;
+            border-left: 6px solid #667eea;
+            padding-left: 20px;
+            font-size: 1.8em;
+            background: linear-gradient(90deg, #f8f9fa 0%, transparent 100%);
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
+        h3 {
+            color: #2c3e50;
+            margin-top: 30px;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 5px;
+        }
+        .status-success {
+            background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+            border-radius: 15px;
+            color: #155724;
+            padding: 25px;
+            margin: 25px 0;
+            border-left: 6px solid #28a745;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .status-info {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border-radius: 15px;
+            color: #004085;
+            padding: 25px;
+            margin: 25px 0;
+            border-left: 6px solid #17a2b8;
+            box-shadow: 0.4 8px rgba(0,0,0,0.1);
+        }
+        .status-warning {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
+            border-radius: 15px;
+            color: #856404;
+            padding: 25px;
+            margin: 25px 0;
+            border-left: 6px solid #ffc107;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .metric-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 15px;
+            text-align: center;
+            display: inline-block;
+            width: 200px;
+            vertical-align: top;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+            transition: transform 0.3s ease;
+        }
+        .metric-card:hover {
+            transform: translateY(-5px);
+        }
+        .metric-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .metric-label {
+            color: rgba(255,255,255,0.9);
+            font-size: 1em;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        tr:hover {
+            background-color: #e3f2fd;
+            transform: scale(1.02);
+            transition: all 0.2s ease;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        .insight-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-left: 5px solid #667eea;
+        }
+        .correlation-highlight {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 25px;
+            font-weight: bold;
+            display: inline-block;
+            margin: 5px;
+        }
+        .tool-section {
+            background: linear-gradient(135deg, #fd79a8 0%, #fdcb6e 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            color: #333;
+        }
+        .visualization-preview {
+            text-align: center;
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .visualization-preview img {
+            max-width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 Kaggle 學生數據 - Pandas + Seaborn EDA 分析</h1>
+        
+        <div class="status-info">
+            <h3>🎯 分析目標</h3>
+            <p>使用 Pandas + Seaborn 進行全面的探索性數據分析 (EDA)，深入了解學生數據的分佈特徵、相關性模式和學習表現規律。</p>
+        </div>
+
+        <h2>📈 數據集概覽</h2>
+        <div class="stats-grid">
+            <div class="metric-card">
+                <div class="metric-value">77</div>
+                <div class="metric-label">總學生數</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">11</div>
+                <div class="metric-label">數據欄位</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">16</div>
+                <div class="metric-label">國家數量</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">2</div>
+                <div class="metric-label">缺失值</div>
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>欄位名稱</th>
+                    <th>數據類型</th>
+                    <th>缺失值</th>
+                    <th>描述</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>fNAME</td><td>String</td><td>0</td><td>名字</td></tr>
+                <tr><td>lNAME</td><td>String</td><td>0</td><td>姓氏</td></tr>
+                <tr><td>Age</td><td>Integer</td><td>0</td><td>年齡 (21-71歲)</td></tr>
+                <tr><td>gender</td><td>String</td><td>0</td><td>性別 (多種格式)</td></tr>
+                <tr><td>country</td><td>String</td><td>0</td><td>國家 (16個國家)</td></tr>
+                <tr><td>residence</td><td>String</td><td>0</td><td>居住地</td></tr>
+                <tr><td>entryEXAM</td><td>Integer</td><td>0</td><td>入學考試分數 (28-98)</td></tr>
+                <tr><td>prevEducation</td><td>String</td><td>0</td><td>教育程度</td></tr>
+                <tr><td>studyHOURS</td><td>Integer</td><td>0</td><td>學習時數 (114-160)</td></tr>
+                <tr><td>Python</td><td>Float</td><td>2</td><td>Python成績 (15-91)</td></tr>
+                <tr><td>DB</td><td>Integer</td><td>0</td><td>數據庫成績 (30-100)</td></tr>
+            </tbody>
+        </table>
+
+        <h2>📊 基本統計分析</h2>
+        
+        <h3>數值欄位描述統計</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>統計量</th>
+                    <th>年齡</th>
+                    <th>入學分數</th>
+                    <th>學習時數</th>
+                    <th>Python成績</th>
+                    <th>DB成績</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>平均數</td><td>35.21</td><td>76.75</td><td>149.71</td><td>75.85</td><td>69.47</td></tr>
+                <tr><td>標準差</td><td>10.34</td><td>16.48</td><td>12.74</td><td>15.41</td><td>17.03</td></tr>
+                <tr><td>最小值</td><td>21.00</td><td>28.00</td><td>114.00</td><td>15.00</td><td>30.00</td></tr>
+                <tr><td>最大值</td><td>71.00</td><td>98.00</td><td>160.00</td><td>91.00</td><td>100.00</td></tr>
+            </tbody>
+        </table>
+
+        <h3>分類變量分佈統計</h3>
+        
+        <div class="insight-card">
+            <h4>🔤 性別分佈</h4>
+            <ul>
+                <li><strong>Female:</strong> 41人 (53.2%) - 主要群體</li>
+                <li><strong>Male:</strong> 32人 (41.6%) - 第二大群體</li>
+                <li><strong>其他變體:</strong> 4人 (5.2%) - 包括 M, F, female, male</li>
+            </ul>
+        the insight-card">
+
+        <div class="insight-card">
+            <h4>🌍 國家分佈 (前10名)</h4>
+            <ul>
+                <li><strong>挪威:</strong> 47人 (61.0%) - 絕對多數</li>
+                <li><strong>烏干達:</strong> 4人 (5.2%) - 第二大群體</li>
+                <li><strong>肯尼亞:</strong> 3人 (3.9%)</li>
+                <li><strong>德國:</strong> 3人 (3.9%)</li>
+                <li><strong>其他歐洲國家:</strong> 14人 (18.2%)</li>
+                <li><strong>其他非洲國家:</strong> 7人 (9.1%)</li>
+            </ul>
+        </div>
+
+        <div class="insight-card">
+            <h4>🏠 居住地分佈</h4>
+            <ul>
+                <li><strong>Private:</strong> 33人 (42.9%) - 私人住宿</li>
+                <li><strong>BI Residence:</strong> 29人 (37.7%) - 學校宿舍</li>
+                <li><strong>Sognsvann:</strong> 12人 (15.6%) - 特殊住宿區</li>
+                <li><strong>其他變體:</strong> 3人 (3.9%) - BI-Residence, BIResidence, BI_Residence</li>
+            </ul>
+        </div>
+
+        <div class="insight-card">
+            <h4>🎓 教育程度分佈</h4>
+            <ul>
+                <li><strong>Bachelors (學士):</strong> 24人 (31.2%) - 最大群體</li>
+                <li><strong>High School (高中):</strong> 18人 (23.4%) - 第二大群體</li>
+                <li><strong>Masters (碩士):</strong> 16人 (20.8%)</li>
+                <li><strong>Diploma (專科):</strong> 9人 (11.7%)</li>
+                <li><strong>Doctorate (博士):</strong> 5人 (6.5%)</li>
+                <li><strong>其他變體:</strong> 5人 (6.5%) - 拼寫錯誤或不一致</li>
+            </ul>
+        </div>
+
+        <h2>🔗 相關性分析</h2>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>變量組合</th>
+                    <th>相關係數</th>
+                    <th>關係強度</th>
+                    <th>解釋</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>入學考試 ↔ 學習時數</td><td>0.808</td><td><span class="correlation-highlight">極強相關</span></td><td>入學成績好的學生學習時間更長</td></tr>
+                <tr><td>學習時數 ↔ Python成績</td><td>0.814</td><td><span class="correlation-highlight">極強相關</span></td><td>學習時間越長Python成績越好</td></tr>
+                <tr><td>入學考試 ↔ Python成績</td><td>0.788</td><td><span class="correlation-highlight">強相關</span></td><td>入學成績能預測Python表現</td></tr>
+                <tr><td>入學考試 ↔ DB成績</td><td>0.608</td><td><span class="correlation-highlight">強相關</span></td><td>入學成績也能預測DB表現</td></tr>
+                <tr><td>學習時數 ↔ DB成績</td><td>0.466</td><td><span class="correlation-highlight">中等相關</span></td><td>學習時間對DB成績影響較小</td></tr>
+                <tr><td>Python ↔ DB成績</td><td>0.449</td><td><span class="correlation-highlight">中等相關</span></td><td>兩科成績有一定相關性</td></tr>
+                <tr><td>年齡 ↔ Python成績</td><td>-0.015</td><td>幾乎無關</td><td>年齡對Python成績基本無影響</td></tr>
+            </tbody>
+        </table>
+
+        <div class="status-success">
+            <h3>🎯 重要發現</h3>
+            <ul>
+                <li><strong>學習效率最關鍵:</strong> 學習時數與Python成績相關性達0.814</li>
+                <li><strong>入學分數很重要:</strong> 入學考試分數與後續成績強相關</li>
+                <li><strong>年齡無礙學習:</strong> 年齡與學業表現幾乎無關</li>
+                <li><strong>學習投入決定成果:</strong> 學習時間是成功的最重要預測因子</li>
+            </ul>
+        </div>
+
+        <h2>🎯 成績分級分析</h2>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Python成績分級</th>
+                    <th>人數</th>
+                    <th>百分比</th>
+                    <th>特徵描述</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>優秀 (90-100)</td><td>1人</td><td>1.3%</td><td>頂尖表現</td></tr>
+                <tr><td>良好 (80-89)</td><td>38人</td><td>50.7%</td><td>大多數學生的水平</td></tr>
+                <tr><td>及格+ (70-79)</td><td>17人</td><td>22.7%</td><td>中等偏上</td></tr>
+                <tr><td>及格 (60-69)</td><td>8人</td><td>10.7%</td><td>基礎水平</td></tr>
+                <tr><td>不及格 (< 60)</td><td>11人</td><td>14.7%</td><td>需要更努力</td></tr>
+            </tbody>
+        </table>
+
+        <h2>📈 學習效率分析</h2>
+        
+        <div class="status-info">
+            <h3>🏆 效率最高的3名學生</h3>
+            <ol>
+                <li><strong>Maria Kedibone:</strong> Python=91分, 效率=74.59</li>
+                <li><strong>Hannah Hansen:</strong> Python=88分, 効率=67.69</li>
+                <li><strong>Philip Leo:</strong> Python=74分, 效率=56.92</li>
+            </ol>
+            <p><strong>效率定義:</strong> Python分數 / 學習時數 × 100</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="metric-card">
+                <div class="metric-value">50.14</div>
+                <div class="metric-label">平均學習效率</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">74.59</div>
+                <div class="metric-label">最高學習效率</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">12.50</div>
+                <div class="metric-label">最低學習效率</div>
+            </div>
+        </div>
+
+        <h2>👥 人口統計分析</h2>
+        
+        <h3>年齡段成績分析</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>年齡段</th>
+                    <th>人數</th>
+                    <th>平均Python成績</th>
+                    <th>表現特徵</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>年輕 (21-25歲)</td><td>13人</td><td>71.77</td><td>相對較低，經驗不足</td></tr>
+                <tr><td>中青年 (26-35歲)</td><td>29人</td><td>78.28</td><td>最佳表現群體</td></tr>
+                <tr><td>中年 (36-45歲)</td><td>22人</td><td>75.32</td><td>穩健的表現</td></tr>
+                <tr><td>資深 (46+歲)</td><td>11人</td><td>75.36</td><td>經驗豐富但年齡限制</td></tr>
+            </tbody>
+        </table>
+
+        <h3>國際學生分析</h3>
+        <div class="insight-card">
+            <h4>🌍 地區分佈統計</h4>
+            <ul>
+                <li><strong>挪威本地學生:</strong> 49人 (63.6%) - 主要群體</li>
+                <li><strong>非洲學生:</strong> 11人 (14.3%) - 烏干達、肯尼亞、尼日利亞、南非</li>
+                <li><strong>歐洲學生:</strong> 15人 (19.5%) - 德國、丹麥、荷蘭、義大利、西班牙、英國</li>
+                <li><strong>其他:</strong> 2人 (2.6%) - 索馬里</li>
+            </ul>
+        </div>
+
+        <h2>🏠 住宿類型對學業影響</h2>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>住宿類型</th>
+                    <th>人數</th>
+                    <th>平均Python成績</th>
+                    <th>平均學習時數</th>
+                    <th>平均年齡</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>Sognsvann</td><td>11人</td><td>81.91</td><td>147.33</td><td>29.58</td></tr>
+                <tr><td>BI Residence</td><td>28人</td><td>73.36</td><td>146.97</td><td>27.38</td></tr>
+                <tr><td>Private</td><td>33人</td><td>75.33</td><td>152.18</td><td>44.64</td></tr>
+            </tbody>
+        </table>
+
+        <div class="status-warning">
+            <h3>🔍 住宿分析洞察</h3>
+            <ul>
+                <li><strong>Sognsvann:</strong> 成績最佳但在校園資源較少</li>
+                <li><strong>BI Residence:</strong> 學生最年輕但成績相對較低</li>
+                <li><strong>Private:</strong> 學生年齡最大但學習時數最多</li>
+            </ul>
+        </div>
+
+        <h2>🛠️ 工具與方法論</h2>
+        
+        <div class="tool-section">
+            <h3>📊 使用的分析工具</h3>
+            <h4>Pandas (核心數據處理)</h4>
+            <ul>
+                <li>數據載入與探索：<code>pd.read_csv(), df.info(), df.describe()</code></li>
+                <li>數據清洗與轉換：<code>df.dropna(), df.groupby(), df.agg()</code></li>
+                <li>統計分析：<code>df.corr(), df.value_counts()</code></li>
+                <li>數據分割：<code>pd.cut(), df.nlargest()</code></li>
+            </ul>
+            
+            <h4>Seaborn (高級視覺化)</h4>
+            <ul>
+                <li>分佈分析：<code>sns.histplot(), sns.distplot()</code></li>
+                <li>關係分析：<code>sns.scatterplot(), sns.regplot()</code></li>
+                <li>比較分析：<code>sns.boxplot(), sns.barplot()</code></li>
+                <li>相關性分析：<code>sns.heatmap(), sns.clustermap()</code></li>
+            </ul>
+            
+            <h4>Matplotlib (基礎視覺化)</h4>
+            <ul>
+                <li>圖表配置：<code>plt.figure(), plt.subplot()</code></li>
+                <li>樣式設置：<code>plt.style.use(), sns.set_style()</code></li>
+                <li>圖表儲存：<code>plt.savefig()</code></li>
+            </ul>
+        </div>
+
+        <h2>💡 建議與後續分析</h2>
+        
+        <div class="status-success">
+            <h3>🚀 建模建議</h3>
+            <ol>
+                <li><strong>回歸預測:</strong> 使用入學分數和學習時數預測Python成績</li>
+                <li><strong>分類預測:</strong> 預測學生成績等級 (優秀/良好/及格/不及格)</li>
+                <li><strong>聚類分析:</strong> 識別不同學習模式的學生群體</li>
+                <li><strong>特徵工程:</strong> 創建學習效率、年齡段、地區等新特徵</li>
+            </ol>
+        </div>
+
+        <div class="status-info">
+            <h3>💡 資料清理建議</h3>
+            <ul>
+                <li><strong>性別標準化:</strong> 統一 Female/Male 格式</li>
+                <li><strong>國家名稱統一:</strong> 修正 Norway/norway/Norge 等拼寫</li>
+                <li><strong>教育背景理整:</strong> 處理 Barrrchelors、Diplomaaa 等錯誤</li>
+                <li><strong>居住地標準化:</strong> 統一 BI Residence 變體</li>
+                <li><strong>缺失值處理:</strong> Python成績的2個缺失值需填補</li>
+            </ul>
+        </div>
+
+        <h2>📁 生成的文件</h2>
+        
+        <div class="visualization-preview">
+            <h3>📊 全面視覺化圖表集</h3>
+            <p>包含16個詳細圖表的組合視覺化：數據分佈、相關性分析、群組比較等</p>
+            <p><strong>檔案:</strong> pandas_seaborn_eda_analysis.png</p>
+        </div>
+
+        <div class="visualization-preview">
+            <h3>🔗 相關性熱圖</h3>
+            <p>詳細的相關性矩陣視覺化，突出顯示強相關性關係</p>
+            <p><strong>檔案:</strong> correlation_heatmap_seaborn.png</p>
+        </div>
+
+        <div class="status-warning">
+            <h3>⚠️ 重要限制</h3>
+            <ul>
+                <li>樣本規模較小 (77人)，結論可能不夠普遍</li>
+                <li>某些欄位數據品質需要改善</li>
+                <li>國際化數據可能存在文化偏差</li>
+                <li>時間序列分析無法進行 (缺乏時間維度)</li>
+            </ul>
+        </div>
+
+        <footer style="text-align: center; margin-top: 50px; color: #666; border-top: 2px solid #eee; padding-top: 30px;">
+            <p><strong>📊 Pandas + Seaborn EDA 分析完成</strong></p>
+            <p>分析工具: Python Pandas, Seaborn, Matplotlib | 分析時間: 2024年12月</p>
+            <p>數據來源: Kaggle Intro to Data Cleaning, EDA, and Machine Learning Dataset</p>
+        </footer>
+    </div>
+</body>
+</html>

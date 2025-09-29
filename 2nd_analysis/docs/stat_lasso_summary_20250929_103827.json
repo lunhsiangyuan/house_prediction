@@ -1,0 +1,30 @@
+{
+    "timestamp": "20250929_103827",
+    "report_path": "/Users/lunhsiangyuan/Desktop/ai side projects/kaggle/reports/report_20250929_103827.html",
+    "log_file": "/Users/lunhsiangyuan/Desktop/ai side projects/kaggle/logs/analysis_20250929_103827.log",
+    "ols_metrics": {
+        "r2": 0.9451109347140282,
+        "adj_r2": 0.9029867683317707,
+        "rmse": 4.743218078478556,
+        "mae": 2.3337098454487015
+    },
+    "ols_diagnostics": {
+        "shapiro_stat": 0.8707791171224146,
+        "shapiro_p": 1.2778419879971734e-06,
+        "durbin_watson": 1.6268981304189993
+    },
+    "lasso_metrics": {
+        "r2": 0.6571714244576268,
+        "rmse": 8.85844610660208,
+        "mae": 5.167947456845824,
+        "alpha": 1.1693939966700317,
+        "zero_coef_ratio": 0.918918918918919
+    },
+    "eda_outputs": {
+        "summary": "/Users/lunhsiangyuan/Desktop/ai side projects/kaggle/project/temp/docs/summary_stats_20250929_103827.csv",
+        "missing": "/Users/lunhsiangyuan/Desktop/ai side projects/kaggle/project/temp/docs/missing_values_20250929_103827.csv",
+        "correlation": "/Users/lunhsiangyuan/Desktop/ai side projects/kaggle/project/temp/docs/correlation_20250929_103827.csv",
+        "hist": "/Users/lunhsiangyuan/Desktop/ai side projects/kaggle/project/temp/reports/python_score_hist_20250929_103827.png",
+        "heatmap": "/Users/lunhsiangyuan/Desktop/ai side projects/kaggle/project/temp/reports/corr_heatmap_20250929_103827.png"
+    }
+}
